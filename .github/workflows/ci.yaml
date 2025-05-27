@@ -1,0 +1,23 @@
+name: ci
+on:
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: "8 7,9,12,18,23 * * *"
+jobs:
+  autopush:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v2
+      - name: AUTO PUSH
+        env: 
+          GITHUB_TOKEN: ${{ secrets.AUTO_PUSH_TOKEN }}
+        run: |
+          git config --global user.email "94773058+chenjjiaa@users.noreply.github.com"
+          git config --global user.name "AUTO PUSH CI"
+          git remote set-url origin https://${{ github.actor }}:${{ secrets.AUTO_PUSH_TOKEN }}@github.com/${{ github.repository }}
+          git pull --rebase
+          git commit --allow-empty -m "This is an auto commit bot :D"
+          git push
