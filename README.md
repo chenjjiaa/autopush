@@ -31,6 +31,6 @@ Run a test workflow to confirm the permissions are working.
 
 ### Troubleshooting
 If encountering errors:
-1. Verify token hasn't expired
-2. Confirm correct permission scopes were selected
-3. Ensure secret name matches exactly in workflows
+1. Verify token hasn't expired.
+2. Confirm correct permission scopes were selected.
+3. Ensure secret name matches exactly in workflows.
