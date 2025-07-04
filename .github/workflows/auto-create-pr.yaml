@@ -1,0 +1,51 @@
+name: Auto Create Draft PR
+
+on:
+  push:
+    branches-ignore:
+      - main
+      - master
+      - develop
+
+jobs:
+  create-pr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get commit message
+        id: commit-msg
+        run: |
+          # 获取最新的提交信息
+          COMMIT_MSG=$(git log -1 --pretty=format:"%s")
+
+          # 移除类型前缀（如 feat:, chore:, fix: 等）
+          CLEAN_MSG=$(echo "$COMMIT_MSG" | sed -E 's/^(feat|chore|fix|docs|style|refactor|test|build|ci|perf|revert)(\([^)]*\))?: //')
+
+          # 如果没有类型前缀，直接使用原消息
+          if [ "$CLEAN_MSG" = "$COMMIT_MSG" ]; then
+            CLEAN_MSG="$COMMIT_MSG"
+          fi
+
+          echo "commit_message=$CLEAN_MSG" >> $GITHUB_OUTPUT
+          echo "Original commit message: $COMMIT_MSG"
+          echo "Clean commit message: $CLEAN_MSG"
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          base: main
+          title: "draft: ${{ steps.commit-msg.outputs.commit_message }}"
+          body: |
+            This PR was automatically created from branch `${{ github.ref_name }}`.
+
+            **Commit:** ${{ github.sha }}
+            **Branch:** ${{ github.ref_name }}
+
+            This is a draft PR. Please review and update as needed.
+          draft: true
+          delete-branch: false
